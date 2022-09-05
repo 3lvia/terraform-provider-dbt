@@ -12,8 +12,8 @@ provider "dbt" {
     account_id = var.account_id
 }
 
-resource "dbt_group" "myGroup" {
-  name = "myNewGroupCreatedByTerraform123"
+resource "dbt_user_group" "myUserGroup" {
+  name = "myNewUserGroupCreatedByTerraform"
   assign_by_default = true
   sso_mapping_groups = ["systemaccess-edna-developer"]
   group_permissions {

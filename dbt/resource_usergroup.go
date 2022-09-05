@@ -10,15 +10,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	dbtgroup "terraform-provider-dbt/dbt/group"
+	dbtusergroup "terraform-provider-dbt/dbt/group"
 )
 
-func resourceGroup() *schema.Resource {
+func resourceUserUserGroup() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceGroupCreate,
-		ReadContext:   resourceGroupRead,
-		UpdateContext: resourceGroupUpdate,
-		DeleteContext: resourceGroupDelete,
+		CreateContext: resourceUserGroupCreate,
+		ReadContext:   resourceUserGroupRead,
+		UpdateContext: resourceUserGroupUpdate,
+		DeleteContext: resourceUserGroupDelete,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -47,7 +47,7 @@ func resourceGroup() *schema.Resource {
 								value := i.(string)
 								var diags diag.Diagnostics
 
-								validGroupPermissions := []string{
+								validUserGroupPermissions := []string{
 									"owner",
 									"member",
 									"account_admin",
@@ -67,7 +67,7 @@ func resourceGroup() *schema.Resource {
 									"webhooks_only",
 								}
 
-								for _, val := range validGroupPermissions {
+								for _, val := range validUserGroupPermissions {
 									if val == value {
 										return diags
 									}
@@ -75,8 +75,8 @@ func resourceGroup() *schema.Resource {
 
 								return append(diags, diag.Diagnostic{
 									Severity: diag.Warning,
-									Summary:  "Group Permission not valid",
-									Detail:   fmt.Sprintf("%q is not a valid group permission. Must be one of: [%s]", value, strings.Join(validGroupPermissions, ", ")),
+									Summary:  "UserGroup Permission not valid",
+									Detail:   fmt.Sprintf("%q is not a valid group permission. Must be one of: [%s]", value, strings.Join(validUserGroupPermissions, ", ")),
 								})
 							},
 						},
@@ -98,42 +98,42 @@ func resourceGroup() *schema.Resource {
 	}
 }
 
-func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceUserGroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	providerInput := m.(*DbtProviderInput)
-	groupInput := readGroupFromResourceData(d, providerInput.AccountId)
+	groupInput := readUserGroupFromResourceData(d, providerInput.AccountId)
 
-	group, diags := dbtgroup.CreateGroup(groupInput, providerInput.ServiceToken)
+	group, diags := dbtusergroup.CreateUserGroup(groupInput, providerInput.ServiceToken)
 	if diags != nil {
 		return diags
 	}
-	groupPermisisonsInput := readGroupPermissionsFromResourceData(d, group.Id, group.AccountId)
+	groupPermisisonsInput := readUserGroupPermissionsFromResourceData(d, group.Id, group.AccountId)
 
 	if group != nil {
-		setStateFromGroup(d, group)
+		setStateFromUserGroup(d, group)
 	}
 
-	groupPermissions, diags := dbtgroup.CreateOrUpdateGroupPermissions(groupPermisisonsInput, group.Id, group.AccountId, providerInput.ServiceToken)
+	groupPermissions, diags := dbtusergroup.CreateOrUpdateUserGroupPermissions(groupPermisisonsInput, group.Id, group.AccountId, providerInput.ServiceToken)
 	if diags != nil {
 		return diags
 	}
 
-	d.Set("group_permissions", flattenGroupPermissions(groupPermissions))
+	d.Set("group_permissions", flattenUserGroupPermissions(groupPermissions))
 
 	return diags
 }
 
-func resourceGroupRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceUserGroupRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	providerInput := m.(*DbtProviderInput)
-	groupInput := readGroupFromResourceData(d, providerInput.AccountId)
+	groupInput := readUserGroupFromResourceData(d, providerInput.AccountId)
 
-	group, diags := dbtgroup.ReadGroup(groupInput, providerInput.ServiceToken)
+	group, diags := dbtusergroup.ReadUserGroup(groupInput, providerInput.ServiceToken)
 
 	if diags != nil {
 		return diags
 	}
 
 	if group != nil {
-		setStateFromGroup(d, group)
+		setStateFromUserGroup(d, group)
 	} else {
 		d.SetId("")
 	}
@@ -141,17 +141,17 @@ func resourceGroupRead(ctx context.Context, d *schema.ResourceData, m interface{
 	return diags
 }
 
-func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceUserGroupUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	providerInput := m.(*DbtProviderInput)
-	groupInput := readGroupFromResourceData(d, providerInput.AccountId)
-	groupPermisisonsInput := readGroupPermissionsFromResourceData(d, groupInput.Id, groupInput.AccountId)
+	groupInput := readUserGroupFromResourceData(d, providerInput.AccountId)
+	groupPermisisonsInput := readUserGroupPermissionsFromResourceData(d, groupInput.Id, groupInput.AccountId)
 
 	if groupHasChange(d) {
-		group, diags := dbtgroup.UpdateGroup(groupInput, providerInput.ServiceToken)
+		group, diags := dbtusergroup.UpdateUserGroup(groupInput, providerInput.ServiceToken)
 		if group != nil {
-			setStateFromGroup(d, group)
+			setStateFromUserGroup(d, group)
 		}
 		if diags != nil {
 			return diags
@@ -159,8 +159,8 @@ func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 
 	if d.HasChange("group_permissions") {
-		groupPermissions, diags := dbtgroup.CreateOrUpdateGroupPermissions(groupPermisisonsInput, groupInput.Id, groupInput.AccountId, providerInput.ServiceToken)
-		d.Set("group_permissions", flattenGroupPermissions(groupPermissions))
+		groupPermissions, diags := dbtusergroup.CreateOrUpdateUserGroupPermissions(groupPermisisonsInput, groupInput.Id, groupInput.AccountId, providerInput.ServiceToken)
+		d.Set("group_permissions", flattenUserGroupPermissions(groupPermissions))
 		return diags
 	}
 
@@ -176,47 +176,47 @@ func groupHasChange(d *schema.ResourceData) bool {
 	return hasChange
 }
 
-func resourceGroupDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceUserGroupDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	providerInput := m.(*DbtProviderInput)
-	groupInput := readGroupFromResourceData(d, providerInput.AccountId)
+	groupInput := readUserGroupFromResourceData(d, providerInput.AccountId)
 
-	diags := dbtgroup.DeleteGroup(groupInput, providerInput.ServiceToken)
+	diags := dbtusergroup.DeleteUserGroup(groupInput, providerInput.ServiceToken)
 
 	d.SetId("")
 
 	return diags
 }
 
-func setStateFromGroup(d *schema.ResourceData, group *dbtgroup.Group) {
+func setStateFromUserGroup(d *schema.ResourceData, group *dbtusergroup.UserGroup) {
 	d.SetId(strconv.Itoa(group.Id))
 	d.Set("assign_by_default", group.AssignByDefault)
 	d.Set("name", group.Name)
 	d.Set("account_id", group.AccountId)
-	d.Set("sso_mapping_groups", group.SsoMappingGroups)
-	d.Set("group_permissions", flattenGroupPermissions(group.GroupPermissions))
+	d.Set("sso_mapping_groups", group.SsoMappingUserGroups)
+	d.Set("group_permissions", flattenUserGroupPermissions(group.UserGroupPermissions))
 }
 
-func readGroupFromResourceData(data *schema.ResourceData, accountId int) *dbtgroup.Group {
+func readUserGroupFromResourceData(data *schema.ResourceData, accountId int) *dbtusergroup.UserGroup {
 	id, _ := strconv.Atoi(data.Id())
 
-	group := &dbtgroup.Group{
-		Id:               id,
-		AccountId:        accountId,
-		Name:             data.Get("name").(string),
-		AssignByDefault:  data.Get("assign_by_default").(bool),
-		SsoMappingGroups: getStringArrayFromResourceSet(data, "sso_mapping_groups"),
+	group := &dbtusergroup.UserGroup{
+		Id:                   id,
+		AccountId:            accountId,
+		Name:                 data.Get("name").(string),
+		AssignByDefault:      data.Get("assign_by_default").(bool),
+		SsoMappingUserGroups: getStringArrayFromResourceSet(data, "sso_mapping_groups"),
 	}
 
 	return group
 }
 
-func readGroupPermissionsFromResourceData(data *schema.ResourceData, groupId int, accountId int) *[]dbtgroup.GroupPermission {
-	rawGroupPermissions := data.Get("group_permissions").(*schema.Set).List()
-	groupPermissions := []dbtgroup.GroupPermission{}
-	for _, item := range rawGroupPermissions {
+func readUserGroupPermissionsFromResourceData(data *schema.ResourceData, groupId int, accountId int) *[]dbtusergroup.UserGroupPermission {
+	rawUserGroupPermissions := data.Get("group_permissions").(*schema.Set).List()
+	groupPermissions := []dbtusergroup.UserGroupPermission{}
+	for _, item := range rawUserGroupPermissions {
 		gp := item.(map[string]interface{})
-		permission := dbtgroup.GroupPermission{
-			GroupId:       groupId,
+		permission := dbtusergroup.UserGroupPermission{
+			UserGroupId:   groupId,
 			AccountId:     accountId,
 			PermissionSet: gp["permission_set"].(string),
 			ProjectId:     gp["project_id"].(int),
@@ -228,7 +228,7 @@ func readGroupPermissionsFromResourceData(data *schema.ResourceData, groupId int
 	return &groupPermissions
 }
 
-func flattenGroupPermissions(groupPermissions *[]dbtgroup.GroupPermission) []interface{} {
+func flattenUserGroupPermissions(groupPermissions *[]dbtusergroup.UserGroupPermission) []interface{} {
 	if groupPermissions == nil {
 		return make([]interface{}, 0)
 	}

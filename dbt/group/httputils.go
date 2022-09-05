@@ -1,4 +1,4 @@
-package dbtgroup
+package dbtusergroup
 
 import (
 	"bytes"

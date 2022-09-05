@@ -1,4 +1,4 @@
-package dbtgroup
+package dbtusergroup
 
 import (
 	"encoding/json"
@@ -9,21 +9,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
-func CreateGroup(groupInput *Group, serviceToken string) (*Group, diag.Diagnostics) {
+func CreateUserGroup(groupInput *UserGroup, serviceToken string) (*UserGroup, diag.Diagnostics) {
 	// var diags diag.Diagnostics
 
 	url := fmt.Sprintf("https://cloud.getdbt.com/api/v3/accounts/%d/groups/", groupInput.AccountId)
 
-	return CreateOrUpdateGroup(groupInput, serviceToken, url, http.StatusCreated)
+	return CreateOrUpdateUserGroup(groupInput, serviceToken, url, http.StatusCreated)
 }
 
-func UpdateGroup(groupInput *Group, serviceToken string) (*Group, diag.Diagnostics) {
+func UpdateUserGroup(groupInput *UserGroup, serviceToken string) (*UserGroup, diag.Diagnostics) {
 	url := fmt.Sprintf("https://cloud.getdbt.com/api/v3/accounts/%d/groups/%d/", groupInput.AccountId, groupInput.Id)
 
-	return CreateOrUpdateGroup(groupInput, serviceToken, url, http.StatusOK)
+	return CreateOrUpdateUserGroup(groupInput, serviceToken, url, http.StatusOK)
 }
 
-func CreateOrUpdateGroup(groupInput *Group, serviceToken string, url string, expectedStatusCode int) (*Group, diag.Diagnostics) {
+func CreateOrUpdateUserGroup(groupInput *UserGroup, serviceToken string, url string, expectedStatusCode int) (*UserGroup, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	response, err := PostAsJson(groupInput, url, serviceToken)
@@ -37,12 +37,12 @@ func CreateOrUpdateGroup(groupInput *Group, serviceToken string, url string, exp
 	if response.StatusCode != expectedStatusCode {
 		return nil, append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Group PostAsJson return http error code in CreateOrUpdateGroup",
+			Summary:  "UserGroup PostAsJson return http error code in CreateOrUpdateUserGroup",
 			Detail:   fmt.Errorf("DBT returned StatusCode %d for (%s), message: %s", response.StatusCode, url, data).Error(),
 		})
 	}
 
-	var groupResponse GetGroupResponse
+	var groupResponse GetUserGroupResponse
 	err = json.Unmarshal(data, &groupResponse)
 	if err != nil {
 		return nil, append(diags, diag.Diagnostic{
@@ -55,7 +55,7 @@ func CreateOrUpdateGroup(groupInput *Group, serviceToken string, url string, exp
 	return &groupResponse.Data, nil
 }
 
-func ReadGroup(groupInput *Group, serviceToken string) (*Group, diag.Diagnostics) {
+func ReadUserGroup(groupInput *UserGroup, serviceToken string) (*UserGroup, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	url := fmt.Sprintf("https://cloud.getdbt.com/api/v3/accounts/%d/groups/%d/", groupInput.AccountId, groupInput.Id)
@@ -75,12 +75,12 @@ func ReadGroup(groupInput *Group, serviceToken string) (*Group, diag.Diagnostics
 	if response.StatusCode != http.StatusOK {
 		return nil, append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Group GetRequest return http error code in ReadGroup",
+			Summary:  "UserGroup GetRequest return http error code in ReadUserGroup",
 			Detail:   fmt.Errorf("DBT returned StatusCode %d for (%s), message: %s", response.StatusCode, url, data).Error(),
 		})
 	}
 
-	var groupResponse GetGroupResponse
+	var groupResponse GetUserGroupResponse
 	err = json.Unmarshal(data, &groupResponse)
 	if err != nil {
 		return nil, append(diags, diag.Diagnostic{
@@ -93,7 +93,7 @@ func ReadGroup(groupInput *Group, serviceToken string) (*Group, diag.Diagnostics
 	return &groupResponse.Data, nil
 }
 
-func DeleteGroup(groupInput *Group, serviceToken string) diag.Diagnostics {
+func DeleteUserGroup(groupInput *UserGroup, serviceToken string) diag.Diagnostics {
 	url := fmt.Sprintf("https://cloud.getdbt.com/api/v3/accounts/%d/groups/%d/", groupInput.AccountId, groupInput.Id)
 	groupInput.State = 2
 
@@ -109,7 +109,7 @@ func DeleteGroup(groupInput *Group, serviceToken string) diag.Diagnostics {
 		return diag.Diagnostics{
 			diag.Diagnostic{
 				Severity: diag.Error,
-				Summary:  "Group PostAsJson return http error code in CreateGroup",
+				Summary:  "UserGroup PostAsJson return http error code in CreateUserGroup",
 				Detail:   fmt.Errorf("DBT returned StatusCode %d for (%s), message: %s", response.StatusCode, url, data).Error(),
 			}}
 	}

@@ -1,4 +1,4 @@
-package dbtgroup
+package dbtusergroup
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
-func CreateOrUpdateGroupPermissions(groupPermissionsInput *[]GroupPermission, groupId int, accountId int, serviceToken string) (*[]GroupPermission, diag.Diagnostics) {
+func CreateOrUpdateUserGroupPermissions(groupPermissionsInput *[]UserGroupPermission, groupId int, accountId int, serviceToken string) (*[]UserGroupPermission, diag.Diagnostics) {
 	url := fmt.Sprintf("https://cloud.getdbt.com/api/v3/accounts/%d/group-permissions/%d/", accountId, groupId)
 	response, err := PostAsJson(groupPermissionsInput, url, serviceToken)
 
@@ -28,7 +28,7 @@ func CreateOrUpdateGroupPermissions(groupPermissionsInput *[]GroupPermission, gr
 		}}
 	}
 
-	var groupPermissionsResponse GroupPermissionsResponse
+	var groupPermissionsResponse UserGroupPermissionsResponse
 	err = json.Unmarshal(data, &groupPermissionsResponse)
 	if err != nil {
 		return nil, diag.Diagnostics{diag.Diagnostic{
