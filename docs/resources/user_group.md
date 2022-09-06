@@ -35,7 +35,7 @@ resource "dbt_user_group" "user_group" {
 ### Optional
 
 - `group_permissions` (Block Set) (see [below for nested schema](#nestedblock--group_permissions))
-- `sso_mapping_groups` (Set of String)
+- `sso_mapping_groups` (Set of String) Name of the sso groups this group should be mapped to
 
 ### Read-Only
 

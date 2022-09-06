@@ -30,7 +30,6 @@ Checkout the code-repo to {GOPATH}\src\github.com\3lvia\terraform-provider-dbt
 
 ## Adding terraform.tfvars to terraform-tester
 Create ../terraform-tester/terraform.tfvars and add these variables.
-Secret values can be found in vault-dev in the path /dbt/kv/manual/terraform_provider_dbt_adcredentials
 
 ```
 service_token = "replaceme"
