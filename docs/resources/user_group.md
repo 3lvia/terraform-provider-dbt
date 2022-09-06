@@ -29,7 +29,7 @@ resource "dbt_user_group" "user_group" {
 
 ### Required
 
-- `assign_by_default` (Boolean)
+- `assign_by_default` (Boolean) Set this to true if users should be automatically added to the group
 - `name` (String)
 
 ### Optional
