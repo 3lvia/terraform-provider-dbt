@@ -2,7 +2,7 @@ terraform {
   required_providers {
     dbt = {
       version = "0.2"
-      source  = "hashicorp.com/edu/dbt"
+      source  = "hashicorp.com/3lvia/dbt"
     }
   }
 }

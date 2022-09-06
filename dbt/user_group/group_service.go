@@ -10,8 +10,6 @@ import (
 )
 
 func CreateUserGroup(groupInput *UserGroup, serviceToken string) (*UserGroup, diag.Diagnostics) {
-	// var diags diag.Diagnostics
-
 	url := fmt.Sprintf("https://cloud.getdbt.com/api/v3/accounts/%d/groups/", groupInput.AccountId)
 
 	return CreateOrUpdateUserGroup(groupInput, serviceToken, url, http.StatusCreated)

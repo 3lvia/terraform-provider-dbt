@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	dbtusergroup "terraform-provider-dbt/dbt/group"
+	dbtusergroup "terraform-provider-dbt/dbt/user_group"
 )
 
 func resourceUserUserGroup() *schema.Resource {
@@ -86,7 +86,7 @@ func resourceUserUserGroup() *schema.Resource {
 						},
 						"all_projects": {
 							Type:     schema.TypeBool,
-							Optional: true,
+							Required: true,
 						},
 					},
 				},
@@ -106,6 +106,7 @@ func resourceUserGroupCreate(ctx context.Context, d *schema.ResourceData, m inte
 	if diags != nil {
 		return diags
 	}
+
 	groupPermisisonsInput := readUserGroupPermissionsFromResourceData(d, group.Id, group.AccountId)
 
 	if group != nil {
