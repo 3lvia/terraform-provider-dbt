@@ -18,7 +18,7 @@ type UserGroupPermission struct {
 	UserGroupId   int    `json:"group_id"`
 	AccountId     int    `json:"account_id"`
 	PermissionSet string `json:"permission_set"`
-	ProjectId     int    `json:"project_id"`
+	ProjectId     int    `json:"project_id,omitempty"`
 	AllProjects   bool   `json:"all_projects"`
 }
 
