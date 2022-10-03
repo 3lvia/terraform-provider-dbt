@@ -36,7 +36,7 @@ func CreateOrUpdateUserGroup(groupInput *UserGroup, serviceToken string, url str
 		return nil, append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "UserGroup PostAsJson return http error code in CreateOrUpdateUserGroup",
-			Detail:   fmt.Errorf("DBT returned StatusCode %d for (%s), message: %s", response.StatusCode, url, data).Error(),
+			Detail:   fmt.Sprintf("DBT returned StatusCode %d for (%s), message: %s", response.StatusCode, url, data),
 		})
 	}
 

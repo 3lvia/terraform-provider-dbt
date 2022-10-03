@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dbtusergroup "terraform-provider-dbt/dbt/user_group"
+	utils "terraform-provider-dbt/dbt/utils"
 )
 
 func resourceUserUserGroup() *schema.Resource {
@@ -205,7 +206,7 @@ func readUserGroupFromResourceData(data *schema.ResourceData, accountId int) *db
 		AccountId:            accountId,
 		Name:                 data.Get("name").(string),
 		AssignByDefault:      data.Get("assign_by_default").(bool),
-		SsoMappingUserGroups: getStringArrayFromResourceSet(data, "sso_mapping_groups"),
+		SsoMappingUserGroups: utils.InterfaceToStringList(data.Get("sso_mapping_groups")),
 	}
 
 	return group
@@ -245,13 +246,4 @@ func flattenUserGroupPermissions(groupPermissions *[]dbtusergroup.UserGroupPermi
 		permissions[i] = p
 	}
 	return permissions
-}
-
-func getStringArrayFromResourceSet(d *schema.ResourceData, name string) []string {
-	rawList := d.Get(name).(*schema.Set).List()
-	stringList := make([]string, len(rawList))
-	for i, v := range rawList {
-		stringList[i] = v.(string)
-	}
-	return stringList
 }

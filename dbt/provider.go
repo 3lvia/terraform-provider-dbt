@@ -10,7 +10,8 @@ import (
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		ResourcesMap: map[string]*schema.Resource{
-			"dbt_user_group": resourceUserUserGroup(),
+			"dbt_user_group":  resourceUserUserGroup(),
+			"dbt_license_map": resourceLicenseMap(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{},
 		Schema: map[string]*schema.Schema{

@@ -1,4 +1,4 @@
-package dbtusergroup
+package utils
 
 import (
 	"bytes"
