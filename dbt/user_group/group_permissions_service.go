@@ -11,6 +11,7 @@ import (
 
 func CreateOrUpdateUserGroupPermissions(groupPermissionsInput *[]UserGroupPermission, groupId int, accountId int, serviceToken string) (*[]UserGroupPermission, diag.Diagnostics) {
 	url := fmt.Sprintf("https://cloud.getdbt.com/api/v3/accounts/%d/group-permissions/%d/", accountId, groupId)
+
 	response, err := PostAsJson(groupPermissionsInput, url, serviceToken)
 
 	if err != nil {
