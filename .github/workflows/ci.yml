@@ -1,0 +1,99 @@
+---
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches: [trunk]
+
+env:
+  SYSTEM_NAME: "edna"
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: elvia-runner
+    permissions:
+      checks: write
+      contents: read
+      issues: read
+      pull-requests: write
+      packages: read
+      statuses: write
+    concurrency:
+      group: "${{ github.workflow }}-${{ github.ref }}-unit-tests"
+      cancel-in-progress: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+
+      - name: Run Unit Tests
+        run: go run gotest.tools/gotestsum@latest --junitfile unit-tests.xml -- -v ./...
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: "Unit Test Results"
+          files: "**/unit-tests.xml"
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: elvia-runner
+    permissions:
+      checks: write
+      contents: read
+      issues: read
+      pull-requests: write
+      packages: read
+      statuses: write
+    concurrency:
+      group: "${{ github.workflow }}-${{ github.ref }}-integration-tests"
+      cancel-in-progress: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+
+      - name: Run Integration Tests
+        run: go run gotest.tools/gotestsum@latest --junitfile integration-tests.xml -- -tags=integration -v ./...
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: "Integration Test Results"
+          files: "**/integration-tests.xml"
+
+#   build:
+#     name: Build (${{ matrix.image-name }})
+#     runs-on: elvia-runner
+#     permissions:
+#       actions: read
+#       contents: write
+#       id-token: write
+#       pull-requests: write
+#       security-events: write
+#     concurrency:
+#       group: "${{ github.workflow }}-${{ github.ref }}-${{ matrix.image-name }}-build"
+#       cancel-in-progress: true
+#     environment: build
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         include:
+#           - image-name: "quantflow-worker"
+#             project-file: "Dockerfile"
+#             docker-build-context: "."
+#     steps:
+#       - uses: 3lvia/core-github-actions-templates/build@trunk
+#         with:
+#           namespace: ${{ env.SYSTEM_NAME }}
+#           name: ${{ matrix.image-name }}
+#           project-file: ${{ matrix.project-file }}
+#           docker-build-context: ${{ matrix.docker-build-context }}
+#           AZURE_CLIENT_ID: ${{ vars.ACR_CLIENT_ID }}
