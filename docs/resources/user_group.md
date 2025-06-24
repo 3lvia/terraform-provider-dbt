@@ -8,6 +8,7 @@ description: |-
 # dbt_user_group (Resource)
 
 ## Example Usage
+
 ```hcl
 resource "dbt_user_group" "user_group" {
   name               = "example-group"
@@ -42,6 +43,7 @@ resource "dbt_user_group" "user_group" {
 - `id` (String) The ID of this resource.
 
 <a id="nestedblock--group_permissions"></a>
+
 ### Nested Schema for `group_permissions`
 
 Required:
@@ -52,5 +54,3 @@ Required:
 Optional:
 
 - `project_id` (Number) Must be set if permission_set is false.
-
-
